@@ -295,7 +295,9 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        return (self.startingPosition, [])
+        startState = (self.startingPosition, [])
+        return startState
+
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -303,9 +305,10 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        if len(self.corners) != len(state[1]):
-            return False
-        return True
+        if(len(state[1]) == 4):
+            return True
+        return False
+
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -318,7 +321,7 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-        
+
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -329,18 +332,20 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-            #print "STATE" , str(state[1])
-            x, y = state[0]
-            visited = state[1]
+        
+            currentPosition = state[0]
+            x, y = currentPosition
+            visitedCorners = state[1]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-
-            if not self.walls[nextx][nexty]:
-                visitedCorners = list(visited)
+            hitsWall = self.walls[nextx][nexty]
+                                
+            if not hitsWall:
+                _visitedCorners = list(visitedCorners)
                 nextState = (nextx, nexty)
-                if nextState in self.corners and nextState not in visitedCorners:
-                    visitedCorners.append(nextState)
-                successor = ((nextState, visitedCorners), action, 1)
+                if nextState in self.corners and nextState not in _visitedCorners:
+                    _visitedCorners.append(nextState)
+                successor = ((nextState, _visitedCorners), action, 1)
                 successors.append(successor)
 
         self._expanded += 1 # DO NOT CHANGE
@@ -379,26 +384,28 @@ def cornersHeuristic(state, problem):
     "*** YOUR CODE HERE ***"
     
     totalCost = 0
+
     currentPosition = state[0]
-    visitedCorners = state[1]
-    cornersLeftToVisit = []
+    visitedCorner = state[1]
+    cornerLeftToVisit = []
 
     for corner in corners:
-        if corner not in visitedCorners:
-            cornersLeftToVisit.append(corner)
-
-    while len(cornersLeftToVisit) > 0:
-        distanceArray = []
-        for corner in cornersLeftToVisit:
-            distanceArray.append(util.manhattanDistance(currentPosition, corner))
-        #distanceArray = [util.manhattanDistance(currentPosition, corner) for corner in cornersLeftToVisit]
-        distanceMin = min(distanceArray)
-        index = distanceArray.index(distanceMin)
-        currentPosition = cornersLeftToVisit[index]
-        cornersLeftToVisit.pop(index)
+        if corner not in visitedCorner:
+            cornerLeftToVisit.append(corner)
+    
+    while len(cornerLeftToVisit) > 0:
+        distanceMin = 1e6
+        for corner in cornerLeftToVisit:
+            distance = util.manhattanDistance(currentPosition, corner)
+            if distance < distanceMin:
+                distanceMin = distance
+                tmp = corner
         totalCost += distanceMin
+        currentPosition = tmp
+        cornerLeftToVisit.remove(tmp)
     return totalCost
 
+    #return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -492,18 +499,7 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-
-    foodList = foodGrid.asList()
-    if problem.isGoalState(state):
-        return 0
-    else:
-        heuristic = []
-        for i in foodList:
-            heuristic.append(util.manhattanDistance(position,i))
-        
-        return max(heuristic)
-        #return 0
-   
+    return 0
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -571,8 +567,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        foodList = self.food.asList()
-        if state in foodList:
+        if (x, y) in self.food.asList():
             return True
         return False
         util.raiseNotDefined()
