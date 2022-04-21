@@ -118,7 +118,7 @@ def breadthFirstSearch(problem):
     queue = util.Queue()
     queue.push( (startState, []) )
  
-    while not queue.isEmpty():
+    while queue:
         currentState, prev_action = queue.pop()
         if problem.isGoalState(currentState):
                 break
