@@ -89,19 +89,19 @@ def depthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     startState = problem.getStartState()
 
-    visited = set()
+    explored = set()
 
     stack = util.Stack()
     stack.push( (startState, []) )
 
     while stack:
         currentState, prev_action = stack.pop()
-        if currentState not in visited:
-            visited.add(currentState)
+        if currentState not in explored:
+            explored.add(currentState)
             if problem.isGoalState(currentState):
                 break
-            for next_node, action, _ in problem.getSuccessors(currentState):
-                stack.push( (next_node, prev_action + [action]) )
+            for nextState, action, _ in problem.getSuccessors(currentState):
+                stack.push( (nextState, prev_action + [action]) )
 
     return prev_action
 
@@ -112,8 +112,8 @@ def breadthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     startState = problem.getStartState()
  
-    visited = []
-    visited.append(startState)
+    explored = []
+    explored.append(startState)
 
     queue = util.Queue()
     queue.push( (startState, []) )
@@ -122,10 +122,10 @@ def breadthFirstSearch(problem):
         currentState, prev_action = queue.pop()
         if problem.isGoalState(currentState):
                 break
-        for next_node, action, _ in problem.getSuccessors(currentState):
-            if next_node not in visited:
-                visited.append(next_node)
-                queue.push( (next_node, prev_action + [action]) )
+        for nextState, action, _ in problem.getSuccessors(currentState):
+            if nextState not in explored:
+                explored.append(nextState)
+                queue.push( (nextState, prev_action + [action]) )
  
     return prev_action
 
@@ -136,20 +136,20 @@ def uniformCostSearch(problem):
     "*** YOUR CODE HERE ***"
     startState = problem.getStartState()
 
-    visited = set()
+    explored = set()
 
     priorityQueue = util.PriorityQueue()
     priorityQueue.push( (startState, []), 0 )
 
     while priorityQueue:
         currentState, prev_action = priorityQueue.pop()
-        if currentState not in visited:
-            visited.add(currentState)
+        if currentState not in explored:
+            explored.add(currentState)
             if problem.isGoalState(currentState):
                 break
-            for next_node, action, _ in problem.getSuccessors(currentState):
+            for nextState, action, _ in problem.getSuccessors(currentState):
                 actions = prev_action + [action]
-                priorityQueue.push( (next_node, actions), problem.getCostOfActions(actions) )
+                priorityQueue.push( (nextState, actions), problem.getCostOfActions(actions) )
     return prev_action
 
     util.raiseNotDefined()
@@ -166,20 +166,20 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "*** YOUR CODE HERE ***"
     startState = problem.getStartState()
 
-    visited = []
+    explored = []
 
     priorityQueue = util.PriorityQueue()
     priorityQueue.push( (startState, []), 0 )
 
     while priorityQueue:
         currentState, prev_action = priorityQueue.pop()
-        if currentState not in visited:
-            visited.append(currentState)
+        if currentState not in explored:
+            explored.append(currentState)
             if problem.isGoalState(currentState):
                 break
-            for next_node, action, _ in problem.getSuccessors(currentState):
+            for nextState, action, _ in problem.getSuccessors(currentState):
                 actions = prev_action + [action]
-                priorityQueue.push( (next_node, actions), problem.getCostOfActions(actions) + heuristic(next_node, problem) )
+                priorityQueue.push( (nextState, actions), problem.getCostOfActions(actions) + heuristic(nextState, problem) )
     return prev_action
 
     util.raiseNotDefined()
